@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { useState } from 'react';
+import axios from 'axios';
 import {
   MDBBtn,
   MDBContainer,
@@ -13,16 +14,43 @@ import {
 }
 from 'mdb-react-ui-kit';
 
-import {Link} from "react-router-dom"
+import {Link, Navigate} from "react-router-dom"
+import { stateContext } from '../contexts/ContextProvider';
+import {useFormik} from "formik"
+import { loginSchema } from '../schemas';
+
 
 
 
 const Login = () => {
+  const onSubmit=(values,action)=>{
+    // console.log(values.email)
+    const email= values.email
+    const password= values.password
+    const payload={email, password}
+    console.log(payload);
+    axios.post("/login",payload).then(({data})=>{
+      setToken(data.token)
+      setUser(data.user)
+    })
+  }
+  const {values,handleChange,handleSubmit,handleBlur,errors}= useFormik({
+    initialValues:{email:"",password:""},
+    validationSchema:loginSchema,
+    onSubmit})
+  
+  const {token,setToken,setUser}=useContext(stateContext)
 
-  const [email, setEmail] = useState()
-  const [password, setPassword] = useState()
-  console.log(email)
-  console.log(password)
+  // console.log(values)
+
+
+  // const [email, setEmail] = useState()
+  // const [password, setPassword] = useState()
+  // console.log(email)
+  // console.log(password)
+  if(token){
+    return <Navigate to={"/dashboard"}/>
+  }
   return (
     
   <>
@@ -44,11 +72,14 @@ const Login = () => {
         </div>
 
         <h5 className="fw-normal my-4 pb-3" style={{letterSpacing: '1px'}}>Login into your account</h5>
-
-          <MDBInput onChange={(e)=> setEmail(e.target.value)} wrapperClass='mb-4' label='Email address' id='formControlLg' type='email' size="lg"/>
-          <MDBInput onChange={(e)=>setPassword(e.target.value)} wrapperClass='mb-4' label='Password' id='formControlLg' type='password' size="lg"/>
-
+        <form onSubmit={handleSubmit}>
+          <MDBInput name='email' value={values.email} onBlur={handleBlur} onChange={handleChange} wrapperClass='mb-4' label='Email address' id='formControlLg' type='email' size="lg"/>
+          {errors.email?<p className='inputerror'>{errors.email}</p>:null}
+          <MDBInput name='password' value={values.password
+          }  onChange={handleChange} wrapperClass='mb-4' label='Password' id='formControlLg' type='password' size="lg"/>
+          {errors.password ? <p className='inputerror'>{errors.password}</p>:null}
         <MDBBtn className="mb-4 px-5" color='dark' size='lg'>Login</MDBBtn>
+        </form>
         <a className="small text-muted" href="#!">Forgot password?</a>
         <p className="mb-5 pb-lg-2" style={{color: '#393f81'}}>new here ? <Link to="/">Register here</Link></p>
 

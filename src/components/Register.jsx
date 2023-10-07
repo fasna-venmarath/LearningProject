@@ -14,17 +14,40 @@ import {
   import { useState } from 'react';
 import {Link, Navigate} from "react-router-dom"
 import { stateContext } from '../contexts/ContextProvider';
+import { useFormik } from 'formik';
+import { registerSchema } from '../schemas';
+import axios from 'axios';
 
 const Register = () => {
-  const{token}=useContext(stateContext)
+const onSubmit=(values,action)=>{
+
+  const name = values.name
+  const email = values.email
+  const password = values.password
+  const payLoad={name,email,password}
+  console.log(payLoad);
   
-  console.log(token);
-  const [name, setName] = useState()
-console.log(name);
-const [email, setEmail] = useState()
-console.log(email)
-const [password, setPassword] = useState()
-console.log(password)
+//   axios.post("/",payLoad).then(({data})=>{
+//     setToken(data.token)
+//     setUser(data.token)
+
+//   })
+ }
+
+const {values,handleSubmit,handleChange,handleBlur,touched,errors}=useFormik({
+  initialValues:{name:"",email:"",password:""},
+  validationSchema:registerSchema,
+onSubmit})
+
+  const{token,setToken,setUser}=useContext(stateContext)
+  
+//   console.log(token);
+//   const [name, setName] = useState()
+// console.log(name);
+// const [email, setEmail] = useState()
+// console.log(email)
+// const [password, setPassword] = useState()
+// console.log(password)
 
 if(token){
   return <Navigate to={"/dashboard"}/>
@@ -49,12 +72,15 @@ if(token){
         </div>
 
         <h5 className="fw-normal my-4 pb-3" style={{letterSpacing: '1px'}}>Sign into your account</h5>
-        <MDBInput onChange={(e)=>setName(e.target.value)}  wrapperClass='mb-4' label='name ' id='formControlLg' type='text' size="lg"/>
-
-          <MDBInput onChange={(e)=>setEmail(e.target.value)} wrapperClass='mb-4' label='Email address' id='formControlLg' type='email' size="lg"/>
-          <MDBInput onChange={(e)=>setPassword(e.target.value)} wrapperClass='mb-4' label='Password' id='formControlLg' type='password' size="lg"/>
-
+        <form onSubmit={handleSubmit}>
+        <MDBInput name='name' value={values.name} onChange={handleChange} onBlur={handleBlur} wrapperClass='mb-4' label='name ' id='formControlLg' type='text' size="lg"/>
+        {errors.name? <p className='inputerror'>{errors.name}</p>:null}
+          <MDBInput name='email' value={values.email} onChange={handleChange} onBlur={handleBlur} wrapperClass='mb-4' label='Email address' id='formControlLg' type='email' size="lg"/>
+          {errors.email? <p className='inputerror'>{errors.email}</p>:null}  
+          <MDBInput name='password' value={values.password} onChange={handleChange} onBlur={handleBlur} wrapperClass='mb-4' label='Password' id='formControlLg' type='password' size="lg"/>
+          {errors.password? <p className='inputerror'>{errors.password}</p>:null}
         <MDBBtn className="mb-4 px-5" color='dark' size='lg'>Register</MDBBtn>
+        </form>
         <a className="small text-muted" href="#!">Forgot password?</a>
         <p className="mb-5 pb-lg-2" style={{color: '#393f81'}}>already have an account? <Link to="/login">login here</Link></p>
 
